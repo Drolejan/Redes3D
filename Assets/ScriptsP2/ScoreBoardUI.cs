@@ -31,7 +31,7 @@ public class ScoreboardUI : NetworkBehaviour
         // 2) Lista de todos
         foreach (Transform c in listParent) Destroy(c.gameObject);
 
-        var all = FindObjectsOfType<PlayerThirdPerson>()
+        var all = Object.FindObjectsByType<PlayerThirdPerson>(FindObjectsSortMode.InstanceID)
                  .OrderByDescending(p => p.score)
                  .ToList();
 

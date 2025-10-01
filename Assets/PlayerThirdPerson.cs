@@ -13,7 +13,7 @@ public class PlayerThirdPerson : NetworkBehaviour
     float gravity = -9.81f;
     float verticalVel = 0f;
 
-    [SerializeField] int localScore;
+    public int score;
 
     void Awake()
     {
@@ -62,7 +62,7 @@ public class PlayerThirdPerson : NetworkBehaviour
 
     public void sumarPuntos()
     {
-        localScore++;
-        Debug.Log(localScore);
+        score++;
+        Debug.Log(score);
     }
 }

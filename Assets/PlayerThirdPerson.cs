@@ -13,6 +13,7 @@ public class PlayerThirdPerson : NetworkBehaviour
     float gravity = -9.81f;
     float verticalVel = 0f;
 
+    [SyncVar(hook = nameof(CambioScore))]//Cada que la variable cambia, se llama la funcion
     public int score;
 
     void Awake()
@@ -62,7 +63,18 @@ public class PlayerThirdPerson : NetworkBehaviour
 
     public void sumarPuntos()
     {
-        score++;
-        Debug.Log(score);
+        if (!isLocalPlayer) return;//Si no es local no suma nada
+        CmdSumarPuntos();//Mando llamar mi nueva función
     }
+
+    [Command]//Funcion que desde el cliente activa algo en el servidor
+    public void CmdSumarPuntos()
+    {
+        score++;
+    }
+
+    void CambioScore(int oldScore, int newScore)
+    {
+        ScoreboardUI.Instance.RefreshNow();
+    }    
 }

@@ -38,7 +38,7 @@ public class ScoreboardUI : NetworkBehaviour
         foreach (var p in all)
         {
             var row = Instantiate(rowPrefab, listParent);
-            var txt = row.GetComponentInChildren<Text>();
+            var txt = row.GetComponentInChildren<TextMeshProUGUI>();
             if (txt)
                 txt.text = $"Player {p.netId}: {p.score}";
         }

@@ -22,6 +22,8 @@ public class coin : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
+
     /*
     private void OnTriggerEnter(Collider collision)
     {

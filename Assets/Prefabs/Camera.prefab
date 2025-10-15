@@ -155,7 +155,7 @@ MonoBehaviour:
   rotationSpeed: 12
   jumpHeight: 2
   cam: {fileID: 830850338217131506}
-  localScore: 0
+  score: 0
 --- !u!114 &8349494457371118587
 MonoBehaviour:
   m_ObjectHideFlags: 0

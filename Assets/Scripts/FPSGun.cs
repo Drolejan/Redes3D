@@ -4,13 +4,13 @@ using UnityEngine;
 public class FPSGun : NetworkBehaviour
 {
     [Header("Refs")]
-    public Camera fpCamera;      // referencia a la misma FP camera del Player local
-    public Transform muzzle;     // punto de salida (para efectos visuales)
-    public LayerMask hitMask;    // capas que puede golpear
-    public GunVisual visuals;    // hacemos referencia a el Script de Efectos
+    public Camera fpCamera;      // la cámara FP del jugador local
+    public Transform muzzle;     // el transform Muzzle
+    public LayerMask hitMask;
+    public GunVisual visuals;    // <-- NUEVO, referencia al script GunVisual
 
     [Header("Disparo")]
-    public float fireRate = 8f;  // disparos por segundo
+    public float fireRate = 8f;  // balas por segundo
     public float range = 100f;
     public int damage = 20;
 
@@ -19,48 +19,46 @@ public class FPSGun : NetworkBehaviour
     void Update()
     {
         if (!isLocalPlayer) return;
+
         if (Input.GetButton("Fire1") && Time.time >= nextFireTime)
         {
             nextFireTime = Time.time + (1f / fireRate);
 
-            // Origen/dirección desde la cámara local
+            // calculamos desde la cámara local
             Vector3 origin = fpCamera.transform.position;
-            Vector3 dir = fpCamera.transform.forward;
+            Vector3 dir    = fpCamera.transform.forward;
+
+            // Se lo pedimos al servidor
             CmdFire(origin, dir);
-            // Opcional: puedes reproducir un pequeño feedback local inmediato
         }
     }
 
     [Command]
     void CmdFire(Vector3 origin, Vector3 direction)
     {
-        // Servidor hace raycast autoritativo
+        Vector3 hitPoint = origin + direction * range;
+
         if (Physics.Raycast(origin, direction, out RaycastHit hit, range, hitMask, QueryTriggerInteraction.Ignore))
         {
-            // Aplicar daño si hay NetworkHealth
-            var nh = hit.collider.GetComponentInParent<NetworkHealth>();
+            hitPoint = hit.point;
+
+            // Aplicar daño si pegamos a alguien con NetworkHealth
+            NetworkHealth nh = hit.collider.GetComponentInParent<NetworkHealth>();
             if (nh != null)
                 nh.TakeDamage(damage);
+        }
 
-            // Avisar a todos para efectos (tracer/impacto)
-            RpcOnFire(origin, hit.point);
-        }
-        else
-        {
-            RpcOnFire(origin, origin + direction * range);
-        }
+        // Avisar a TODOS los clientes para que muestren efectos visuales iguales
+        RpcOnFire(muzzle.position, hitPoint);
     }
 
     [ClientRpc]
-    void RpcOnFire(Vector3 origin, Vector3 hitPoint)
+    void RpcOnFire(Vector3 muzzlePos, Vector3 hitPos)
     {
-        visuals.PlayShotEffect(origin, hitPoint);
-        // Efecto mínimo: dibujar un rayo (debug) o instanciar un tracer local
-        //Debug.DrawLine(origin, hitPoint, Color.yellow, 0.2f);
-        // Si quieres un muzzle flash local:
-        // if (muzzle) { /* play particle or flash */ }
-        // Si quieres chispas en el impacto:
-        // Instantiate(impactVfxPrefab, hitPoint, Quaternion.identity); // <- si lo haces en red, usa NetworkServer.Spawn desde el server
+        // Efectos visibles para todos los jugadores
+        if (visuals != null)
+        {
+            visuals.PlayShotEffect(muzzlePos, hitPos);
+        }
     }
-    //no me gusta balatro atte dorlejan
 }

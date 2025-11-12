@@ -7,6 +7,7 @@ public class FPSGun : NetworkBehaviour
     public Camera fpCamera;      // referencia a la misma FP camera del Player local
     public Transform muzzle;     // punto de salida (para efectos visuales)
     public LayerMask hitMask;    // capas que puede golpear
+    public GunVisual visuals;    // hacemos referencia a el Script de Efectos
 
     [Header("Disparo")]
     public float fireRate = 8f;  // disparos por segundo
@@ -53,11 +54,13 @@ public class FPSGun : NetworkBehaviour
     [ClientRpc]
     void RpcOnFire(Vector3 origin, Vector3 hitPoint)
     {
+        visuals.PlayShotEffect(origin, hitPoint);
         // Efecto mínimo: dibujar un rayo (debug) o instanciar un tracer local
-        Debug.DrawLine(origin, hitPoint, Color.yellow, 0.2f);
+        //Debug.DrawLine(origin, hitPoint, Color.yellow, 0.2f);
         // Si quieres un muzzle flash local:
         // if (muzzle) { /* play particle or flash */ }
         // Si quieres chispas en el impacto:
         // Instantiate(impactVfxPrefab, hitPoint, Quaternion.identity); // <- si lo haces en red, usa NetworkServer.Spawn desde el server
     }
+    //no me gusta balatro atte dorlejan
 }

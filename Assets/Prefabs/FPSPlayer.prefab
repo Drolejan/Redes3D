@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 937417685806727501}
   - component: {fileID: 6217633786823389102}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: WeaponRig
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -72,7 +72,7 @@ GameObject:
   - component: {fileID: 5162251755639670601}
   - component: {fileID: 8705617112840460928}
   - component: {fileID: 5586253898433923789}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: FPSPlayer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -320,7 +320,7 @@ GameObject:
   - component: {fileID: 6133450196303162706}
   - component: {fileID: 3666105680457728777}
   - component: {fileID: 7936041452480791180}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: ARMA
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -425,7 +425,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4674242696802611324}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: FPSRig
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -461,7 +461,7 @@ GameObject:
   - component: {fileID: 3284556154369695266}
   - component: {fileID: 1401166441830179866}
   - component: {fileID: 98829259889030391}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Flash
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -566,7 +566,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2435752557823019457}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Muzzle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -601,7 +601,7 @@ GameObject:
   - component: {fileID: 1377626222899367555}
   - component: {fileID: 6816173324723030621}
   - component: {fileID: 2820643962998097871}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Trayectoria
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -816,7 +816,7 @@ GameObject:
   - component: {fileID: 1335187214347187793}
   - component: {fileID: 7400409001637568052}
   - component: {fileID: 671328236895689276}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Camera
   m_TagString: Untagged
   m_Icon: {fileID: 0}

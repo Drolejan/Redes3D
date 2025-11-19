@@ -10,14 +10,14 @@ public class PlayerFPS : NetworkBehaviour
     public float gravity = -9.81f;
 
     [Header("Cámara FP")]
-    public Camera fpCamera;         // cámara en hijo del player
+    public Camera fpCamera;         // asigna FP_Camera
     public float mouseSensitivity = 120f;
-    public Transform pitchPivot;    // un transform hijo donde rota el pitch (suele ser el padre de la cámara)
-    
+    public Transform pitchPivot;    // asigna FP_Pivot (padre de la cámara)
+
     CharacterController controller;
     float verticalVel = 0f;
-    float yaw;   // rotación horizontal (cuerpo)
-    float pitch; // rotación vertical (solo cámara)
+    float yaw;   // rotación horizontal del cuerpo
+    float pitch; // rotación vertical (cámara)
 
     void Awake()
     {
@@ -26,16 +26,18 @@ public class PlayerFPS : NetworkBehaviour
 
     public override void OnStartLocalPlayer()
     {
-        // Activar cámara local y capturar cursor
-        if (fpCamera) fpCamera.gameObject.SetActive(true);
+        // Activar cámara solo en el jugador local
+        if (fpCamera != null)
+            fpCamera.gameObject.SetActive(true);
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 
     void Start()
     {
-        // En clientes remotos, apagar cámara
-        if (!isLocalPlayer && fpCamera)
+        // Apagar cámara en jugadores remotos
+        if (!isLocalPlayer && fpCamera != null)
             fpCamera.gameObject.SetActive(false);
     }
 
@@ -43,27 +45,29 @@ public class PlayerFPS : NetworkBehaviour
     {
         if (!isLocalPlayer) return;
 
-        // Mouse look
+        // --- Mouse look ---
         float mx = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float my = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
-        yaw += mx;
+        yaw   += mx;
         pitch -= my;
         pitch = Mathf.Clamp(pitch, -85f, 85f);
 
-        // Aplicar rotaciones
         transform.rotation = Quaternion.Euler(0f, yaw, 0f);
-        if (pitchPivot) pitchPivot.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+        if (pitchPivot != null)
+            pitchPivot.localRotation = Quaternion.Euler(pitch, 0f, 0f);
 
-        // Movimiento WASD relativo al yaw
+        // --- Movimiento WASD ---
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
         Vector3 input = new Vector3(h, 0f, v).normalized;
 
         Vector3 moveDir = transform.right * input.x + transform.forward * input.z;
 
-        // Gravedad/salto
-        if (controller.isGrounded && verticalVel < 0f) verticalVel = -2f;
+        // --- Gravedad + salto ---
+        if (controller.isGrounded && verticalVel < 0f)
+            verticalVel = -2f;
+
         if (controller.isGrounded && Input.GetButtonDown("Jump"))
             verticalVel = Mathf.Sqrt(jumpHeight * -2f * gravity);
 
@@ -71,5 +75,11 @@ public class PlayerFPS : NetworkBehaviour
 
         Vector3 velocity = moveDir * moveSpeed + Vector3.up * verticalVel;
         controller.Move(velocity * Time.deltaTime);
+    }
+
+    // Llamado por NetworkHealth al respawnear
+    public void ResetVerticalVelocity()
+    {
+        verticalVel = 0f;
     }
 }

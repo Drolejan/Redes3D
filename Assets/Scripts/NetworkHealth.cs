@@ -9,56 +9,91 @@ public class NetworkHealth : NetworkBehaviour
     [SyncVar(hook = nameof(OnHealthChanged))]
     public int health = 100;
 
-    // Spawn propio de este jugador
-    Vector3 spawnPos;
-    Quaternion spawnRot;
-
     public override void OnStartServer()
     {
-        // Guardamos dónde apareció originalmente este player
-        spawnPos = transform.position;
-        spawnRot = transform.rotation;
-
+        // Vida inicial en el servidor
         health = maxHealth;
     }
 
+    // Solo el servidor puede aplicar daño
     [Server]
     public void TakeDamage(int amount)
     {
-        if (health <= 0) return; // ya está "muerto"
+        if (health <= 0) return; // ya estaba "muerto"
 
         health = Mathf.Max(health - amount, 0);
-        Debug.Log($"[SERVER] {netId} tomó daño, health={health}");
+        Debug.Log($"[SERVER] netId={netId} tomó daño, health={health}");
 
         if (health == 0)
             ServerHandleDeath();
     }
 
+    // Se ejecuta en TODOS los clientes cuando cambia la vida
     void OnHealthChanged(int oldV, int newV)
     {
-        Debug.Log($"[CLIENT] netId={netId} health {oldV} -> {newV}, isServer={isServer}, isLocal={isLocalPlayer}");
-        // Aquí solo HUD / efectos si quieres
+        Debug.Log($"[CLIENT] netId={netId} health {oldV}->{newV} isServer={isServer} isLocal={isLocalPlayer}");
+        // Aquí podrías actualizar HUD local si quieres
     }
 
     [Server]
-void ServerHandleDeath()
-{
-    Debug.Log($"[SERVER] {netId} murió, respawneando... pos antes = {transform.position}");
-
-    health = maxHealth;
-
-    var cc = GetComponent<CharacterController>();
-    if (cc != null)
+    void ServerHandleDeath()
     {
-        cc.enabled = false;
-        transform.SetPositionAndRotation(spawnPos, spawnRot);
-        cc.enabled = true;
-    }
-    else
-    {
-        transform.SetPositionAndRotation(spawnPos, spawnRot);
+        Debug.Log($"[SERVER] netId={netId} murió, respawneando...");
+
+        // 1) Buscar un punto de respawn aleatorio en la escena
+        Vector3 respawnPos;
+        Quaternion respawnRot;
+        GetRandomSpawn(out respawnPos, out respawnRot);
+
+        // 2) Resetear vida en el servidor
+        health = maxHealth;
+
+        // 3) Pedir al cliente dueño (host o client) que se teletransporte localmente
+        TargetRespawn(connectionToClient, respawnPos, respawnRot);
     }
 
-    Debug.Log($"[SERVER] {netId} pos después = {transform.position}");
-}
+    // Elegir NetworkStartPosition aleatorio (solo en server)
+    [Server]
+    void GetRandomSpawn(out Vector3 pos, out Quaternion rot)
+    {
+        NetworkStartPosition[] spawns = FindObjectsOfType<NetworkStartPosition>();
+
+        if (spawns != null && spawns.Length > 0)
+        {
+            NetworkStartPosition sp = spawns[Random.Range(0, spawns.Length)];
+            pos = sp.transform.position;
+            rot = sp.transform.rotation;
+        }
+        else
+        {
+            // Fallback por si no hay spawns
+            pos = Vector3.up * 1f;
+            rot = Quaternion.identity;
+            Debug.LogWarning("[SERVER] No hay NetworkStartPosition en la escena, usando (0,1,0).");
+        }
+    }
+
+    // Se ejecuta SOLO en el cliente dueño de este objeto (incluye al host)
+    [TargetRpc]
+    void TargetRespawn(NetworkConnectionToClient target, Vector3 pos, Quaternion rot)
+    {
+        Debug.Log($"[CLIENT TargetRespawn] netId={netId} respawn en {pos}");
+
+        CharacterController cc = GetComponent<CharacterController>();
+        PlayerFPS fps = GetComponent<PlayerFPS>();
+
+        if (cc != null)
+        {
+            cc.enabled = false;
+            transform.SetPositionAndRotation(pos, rot);
+            cc.enabled = true;
+        }
+        else
+        {
+            transform.SetPositionAndRotation(pos, rot);
+        }
+
+        if (fps != null)
+            fps.ResetVerticalVelocity();
+    }
 }

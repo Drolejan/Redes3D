@@ -41,24 +41,24 @@ public class NetworkHealth : NetworkBehaviour
     }
 
     [Server]
-    void ServerHandleDeath()
+void ServerHandleDeath()
+{
+    Debug.Log($"[SERVER] {netId} murió, respawneando... pos antes = {transform.position}");
+
+    health = maxHealth;
+
+    var cc = GetComponent<CharacterController>();
+    if (cc != null)
     {
-        Debug.Log($"[SERVER] {netId} murió, respawneando...");
-
-        // Resetear vida primero
-        health = maxHealth;
-
-        // Teleport al spawn guardado
-        var cc = GetComponent<CharacterController>();
-        if (cc != null)
-        {
-            cc.enabled = false;
-            transform.SetPositionAndRotation(spawnPos, spawnRot);
-            cc.enabled = true;
-        }
-        else
-        {
-            transform.SetPositionAndRotation(spawnPos, spawnRot);
-        }
+        cc.enabled = false;
+        transform.SetPositionAndRotation(spawnPos, spawnRot);
+        cc.enabled = true;
     }
+    else
+    {
+        transform.SetPositionAndRotation(spawnPos, spawnRot);
+    }
+
+    Debug.Log($"[SERVER] {netId} pos después = {transform.position}");
+}
 }

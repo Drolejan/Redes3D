@@ -56,7 +56,7 @@ public class NetworkHealth : NetworkBehaviour
     [Server]
     void GetRandomSpawn(out Vector3 pos, out Quaternion rot)
     {
-        NetworkStartPosition[] spawns = FindObjectsOfType<NetworkStartPosition>();
+        NetworkStartPosition[] spawns = Object.FindObjectsByType<NetworkStartPosition>(FindObjectsSortMode.None);
 
         if (spawns != null && spawns.Length > 0)
         {

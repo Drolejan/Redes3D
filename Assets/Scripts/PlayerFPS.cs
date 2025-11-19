@@ -19,9 +19,12 @@ public class PlayerFPS : NetworkBehaviour
     float yaw;   // rotación horizontal del cuerpo
     float pitch; // rotación vertical (cámara)
 
+    NetworkHealth health;
+
     void Awake()
     {
         controller = GetComponent<CharacterController>();
+        health = GetComponent<NetworkHealth>();
     }
 
     public override void OnStartLocalPlayer()
@@ -75,6 +78,9 @@ public class PlayerFPS : NetworkBehaviour
 
         Vector3 velocity = moveDir * moveSpeed + Vector3.up * verticalVel;
         controller.Move(velocity * Time.deltaTime);
+
+        if (transform.position.y < -5f) health.ServerHandleDeath();
+
     }
 
     // Llamado por NetworkHealth al respawnear

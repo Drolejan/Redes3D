@@ -34,7 +34,7 @@ public class NetworkHealth : NetworkBehaviour
     }
 
     [Server]
-    void ServerHandleDeath()
+    public void ServerHandleDeath()
     {
         // 1) Buscar un punto de respawn aleatorio en la escena
         Vector3 respawnPos;

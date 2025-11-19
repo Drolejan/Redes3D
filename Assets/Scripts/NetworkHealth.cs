@@ -9,17 +9,23 @@ public class NetworkHealth : NetworkBehaviour
     [SyncVar(hook = nameof(OnHealthChanged))]
     public int health = 100;
 
+    // Spawn propio de este jugador
+    Vector3 spawnPos;
+    Quaternion spawnRot;
+
     public override void OnStartServer()
     {
-        // Aseguramos vida inicial correcta en el server
+        // Guardamos dónde apareció originalmente este player
+        spawnPos = transform.position;
+        spawnRot = transform.rotation;
+
         health = maxHealth;
     }
 
-    // Solo el servidor puede hacer daño
     [Server]
     public void TakeDamage(int amount)
     {
-        if (health <= 0) return; // ya estaba muerto
+        if (health <= 0) return; // ya está "muerto"
 
         health = Mathf.Max(health - amount, 0);
         Debug.Log($"[SERVER] {netId} tomó daño, health={health}");
@@ -28,13 +34,10 @@ public class NetworkHealth : NetworkBehaviour
             ServerHandleDeath();
     }
 
-    // Hook: se dispara en TODOS los clientes cuando cambia la vida
     void OnHealthChanged(int oldV, int newV)
     {
-        Debug.Log($"[CLIENT] netId={netId} health {oldV} -> {newV} isServer={isServer} isLocal={isLocalPlayer}");
-
-        // Aquí SOLO actualiza UI / efectos locales
-        // NUNCA hagas health = algo aquí.
+        Debug.Log($"[CLIENT] netId={netId} health {oldV} -> {newV}, isServer={isServer}, isLocal={isLocalPlayer}");
+        // Aquí solo HUD / efectos si quieres
     }
 
     [Server]
@@ -42,25 +45,20 @@ public class NetworkHealth : NetworkBehaviour
     {
         Debug.Log($"[SERVER] {netId} murió, respawneando...");
 
-        // 1) Elegir punto de respawn
-        Transform start = NetworkManager.singleton.GetStartPosition();
-        Vector3 pos = start ? start.position + Vector3.up * 1f : Vector3.up * 1f;
-        Quaternion rot = start ? start.rotation : Quaternion.identity;
-
-        // 2) Resetear vida en el server
+        // Resetear vida primero
         health = maxHealth;
 
-        // 3) Teletransportar al jugador (y resetear controller)
+        // Teleport al spawn guardado
         var cc = GetComponent<CharacterController>();
-        if (cc)
+        if (cc != null)
         {
             cc.enabled = false;
-            transform.SetPositionAndRotation(pos, rot);
+            transform.SetPositionAndRotation(spawnPos, spawnRot);
             cc.enabled = true;
         }
         else
         {
-            transform.SetPositionAndRotation(pos, rot);
+            transform.SetPositionAndRotation(spawnPos, spawnRot);
         }
     }
 }

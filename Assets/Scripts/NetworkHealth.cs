@@ -3,39 +3,64 @@ using UnityEngine;
 
 public class NetworkHealth : NetworkBehaviour
 {
-    [SyncVar(hook = nameof(OnHealthChanged))] public int health = 100;
+    [Header("Vida")]
+    public int maxHealth = 100;
 
-    public void TakeDamage(int amount)
+    [SyncVar(hook = nameof(OnHealthChanged))]
+    public int health = 100;
+
+    public override void OnStartServer()
     {
-        if (!isServer) return; // solo el servidor modifica el estado
-        health = Mathf.Max(0, health - amount);
-        if (health <= 0) OnDeath();
+        // Aseguramos vida inicial correcta en el server
+        health = maxHealth;
     }
 
+    // Solo el servidor puede hacer daño
+    [Server]
+    public void TakeDamage(int amount)
+    {
+        if (health <= 0) return; // ya estaba muerto
+
+        health = Mathf.Max(health - amount, 0);
+        Debug.Log($"[SERVER] {netId} tomó daño, health={health}");
+
+        if (health == 0)
+            ServerHandleDeath();
+    }
+
+    // Hook: se dispara en TODOS los clientes cuando cambia la vida
     void OnHealthChanged(int oldV, int newV)
     {
-        // Aquí podrías actualizar UI local si existiera
-        // Debug.Log($"[{netId}] health {oldV}->{newV}");
+        Debug.Log($"[CLIENT] netId={netId} health {oldV} -> {newV} isServer={isServer} isLocal={isLocalPlayer}");
+
+        // Aquí SOLO actualiza UI / efectos locales
+        // NUNCA hagas health = algo aquí.
     }
 
     [Server]
-    void OnDeath()
+    void ServerHandleDeath()
     {
-        // Respawn simple: teletransportar a origen
+        Debug.Log($"[SERVER] {netId} murió, respawneando...");
+
+        // 1) Elegir punto de respawn
         Transform start = NetworkManager.singleton.GetStartPosition();
         Vector3 pos = start ? start.position + Vector3.up * 1f : Vector3.up * 1f;
-        health = 100;
+        Quaternion rot = start ? start.rotation : Quaternion.identity;
 
+        // 2) Resetear vida en el server
+        health = maxHealth;
+
+        // 3) Teletransportar al jugador (y resetear controller)
         var cc = GetComponent<CharacterController>();
         if (cc)
         {
             cc.enabled = false;
-            transform.SetPositionAndRotation(pos, start ? start.rotation : Quaternion.identity);
+            transform.SetPositionAndRotation(pos, rot);
             cc.enabled = true;
         }
         else
         {
-            transform.SetPositionAndRotation(pos, start ? start.rotation : Quaternion.identity);
+            transform.SetPositionAndRotation(pos, rot);
         }
     }
 }

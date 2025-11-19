@@ -22,7 +22,6 @@ public class NetworkHealth : NetworkBehaviour
         if (health <= 0) return; // ya estaba "muerto"
 
         health = Mathf.Max(health - amount, 0);
-        Debug.Log($"[SERVER] netId={netId} tomó daño, health={health}");
 
         if (health == 0)
             ServerHandleDeath();
@@ -31,15 +30,12 @@ public class NetworkHealth : NetworkBehaviour
     // Se ejecuta en TODOS los clientes cuando cambia la vida
     void OnHealthChanged(int oldV, int newV)
     {
-        Debug.Log($"[CLIENT] netId={netId} health {oldV}->{newV} isServer={isServer} isLocal={isLocalPlayer}");
         // Aquí podrías actualizar HUD local si quieres
     }
 
     [Server]
     void ServerHandleDeath()
     {
-        Debug.Log($"[SERVER] netId={netId} murió, respawneando...");
-
         // 1) Buscar un punto de respawn aleatorio en la escena
         Vector3 respawnPos;
         Quaternion respawnRot;

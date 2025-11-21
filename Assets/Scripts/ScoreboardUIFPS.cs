@@ -38,7 +38,7 @@ public class ScoreboardUIFPS : MonoBehaviour
             Destroy(child.gameObject);
 
         // Buscar todos los jugadores (NetworkHealth) y ordenarlos por kills
-        var players = FindObjectsOfType<NetworkHealth>()
+        var players = Object.FindObjectsByType<NetworkHealth>(FindObjectsSortMode.InstanceID)
                      .OrderByDescending(p => p.kills)
                      .ToList();
 

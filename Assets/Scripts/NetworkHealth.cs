@@ -69,13 +69,13 @@ public class NetworkHealth : NetworkBehaviour
     void OnKillsChanged(int oldV, int newV)
     {
         Debug.Log($"[CLIENT] netId={netId} kills {oldV}->{newV}");
-        ScoreboardUI.Instance?.Refresh(); // refrescar tabla inmediatamente
+        ScoreboardUIFPS.Instance?.Refresh(); // refrescar tabla inmediatamente
     }
 
     // === MUERTE Y RESPAWN ===
 
     [Server]
-    void ServerHandleDeath()
+    public void ServerHandleDeath()
     {
         Debug.Log($"[SERVER] netId={netId} murió, respawneando...");
 
@@ -94,7 +94,7 @@ public class NetworkHealth : NetworkBehaviour
     [Server]
     void GetRandomSpawn(out Vector3 pos, out Quaternion rot)
     {
-        NetworkStartPosition[] spawns = FindObjectsOfType<NetworkStartPosition>();
+        NetworkStartPosition[] spawns = Object.FindObjectsByType<NetworkStartPosition>(FindObjectsSortMode.None);
 
         if (spawns != null && spawns.Length > 0)
         {

@@ -40,9 +40,9 @@ public class FPSGun : NetworkBehaviour
         {
             hitPoint = hit.point;
 
-            // Evitar auto-hit: si le pegamos a nuestro propio NetworkIdentity, ignoramos daño
-            NetworkIdentity hitId = hit.collider.GetComponentInParent<NetworkIdentity>();
+            // Evitar pegarte a ti mismo
             NetworkIdentity myId  = GetComponent<NetworkIdentity>();
+            NetworkIdentity hitId = hit.collider.GetComponentInParent<NetworkIdentity>();
 
             if (hitId != null && hitId == myId)
             {
@@ -55,7 +55,7 @@ public class FPSGun : NetworkBehaviour
             NetworkHealth nh = hit.collider.GetComponentInParent<NetworkHealth>();
             if (nh != null)
             {
-                nh.TakeDamage(damage);
+                nh.TakeDamage(damage, myId); // <-- pasamos atacante
             }
         }
 
@@ -72,7 +72,6 @@ public class FPSGun : NetworkBehaviour
         }
         else
         {
-            // Fallback mínimo: línea debug
             Debug.DrawLine(muzzlePos, hitPos, Color.yellow, 0.2f);
         }
     }

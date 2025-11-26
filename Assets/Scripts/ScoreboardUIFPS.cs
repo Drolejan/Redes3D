@@ -2,6 +2,7 @@ using System.Linq;
 using Mirror;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class ScoreboardUIFPS : MonoBehaviour
 {
@@ -45,7 +46,7 @@ public class ScoreboardUIFPS : MonoBehaviour
         foreach (var p in players)
         {
             GameObject row = Instantiate(rowPrefab, listParent);
-            Text txt = row.GetComponentInChildren<Text>(); // o TextMeshProUGUI si usas TMP
+            TextMeshProUGUI txt = row.GetComponentInChildren<TextMeshProUGUI>(); // o TextMeshProUGUI si usas TMP
 
             string name = string.IsNullOrEmpty(p.displayName)
                 ? $"Player {p.netId}"

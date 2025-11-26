@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class NetworkGameManager : NetworkBehaviour
 {
+    /*
     public static NetworkGameManager Instance;
 
     [Header("Configuración de partida")]
@@ -109,4 +110,5 @@ public class NetworkGameManager : NetworkBehaviour
         // Aquí podrías mostrar un panel de victoria
         // por ahora solo lo dejamos en log
     }
+    */
 }

@@ -266,7 +266,7 @@ MonoBehaviour:
   jumpHeight: 1.2
   gravity: -9.81
   fpCamera: {fileID: 1335187214347187793}
-  mouseSensitivity: 120
+  mouseSensitivity: 500
   pitchPivot: {fileID: 4674242696802611324}
 --- !u!114 &8705617112840460928
 MonoBehaviour:
@@ -307,7 +307,11 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  maxHealth: 100
   health: 100
+  kills: 0
+  displayName: 
+  healthtxt: {fileID: 0}
 --- !u!1 &997975546318288313
 GameObject:
   m_ObjectHideFlags: 0

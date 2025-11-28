@@ -1,5 +1,6 @@
 using Mirror;
 using UnityEngine;
+using TMPro;
 
 public class NetworkHealth : NetworkBehaviour
 {
@@ -16,16 +17,20 @@ public class NetworkHealth : NetworkBehaviour
     [SyncVar]
     public string displayName;
 
+    public TextMeshProUGUI healthtxt;
+
     public override void OnStartServer()
     {
         // Vida inicial en el servidor
-        health = maxHealth;
+        health = maxHealth; 
     }
 
     public override void OnStartLocalPlayer()
     {
         // Nombre por defecto; luego puedes cambiarlo por input de usuario
         CmdSetName($"Player {netId}");
+        healthtxt = GameObject.Find("HealthText").GetComponent<TextMeshProUGUI>();
+        healthtxt.text = maxHealth.ToString();
     }
 
     [Command]
@@ -64,6 +69,8 @@ public class NetworkHealth : NetworkBehaviour
     {
         Debug.Log($"[CLIENT] netId={netId} health {oldV}->{newV} isServer={isServer} isLocal={isLocalPlayer}");
         // Aquí podrías actualizar HUD local de vida
+        if(isLocalPlayer)
+        healthtxt.text = newV.ToString();
     }
 
     void OnKillsChanged(int oldV, int newV)
